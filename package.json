@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "axios": "^1.13.2",
+    "bcryptjs": "^3.0.3",
+    "bootstrap": "^5.3.8",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.3",
+    "react-router-dom": "^7.9.6"
+  },
+  "name": "servicehub",
+  "version": "1.0.0",
+  "description": "“A web platform for booking and managing home services.”",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AartiVerma4/ServiceHub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AartiVerma4/ServiceHub/issues"
+  },
+  "homepage": "https://github.com/AartiVerma4/ServiceHub#readme"
+}

@@ -1,0 +1,23 @@
+:root{
+  --accent-start: #dff6ef;
+  --accent-end: #e6fff7;
+  --brand: #17a08a; /* teal-ish */
+  --muted: #6c757d;
+  --hero-font: 'Poppins', sans-serif;
+}
+
+body { font-family: var(--hero-font); color: #234; background: white; }
+
+.hero {
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+  padding: 5rem 1.5rem;
+}
+
+h1.hero-title { font-size: 4rem; color: #0b6b54; font-weight: 600; }
+h2.section-title { color: var(--brand); font-weight: 600; font-size: 2.2rem; }
+
+.search-card { max-width: 560px; }
+.btn-primary { background: var(--brand); border: none; }
+
+.service-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; }
+.small-pill { background: #15b27f; color: white; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.8rem; }
