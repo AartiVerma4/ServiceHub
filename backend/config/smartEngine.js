@@ -63,12 +63,16 @@ async function autoAssignProvider(booking) {
         continue;
       }
 
-      // 3. Score weighting: 50% Distance (closer is better), 35% Rating, 15% Experience
+      // 3. Score weighting: 50% Distance (closer is better), 30% Rating, 20% Completion Rate
       const distanceScore = Math.max(0, 100 - distanceKm * 3); // 0-100
       const ratingScore = ((provider.rating?.average || 4.5) / 5) * 100; // 0-100
-      const expScore = Math.min(100, (provider.experienceYears || 1) * 10); // 0-100
+      
+      const totalAssigned = provider.totalAssignedJobsCount || 0;
+      const completed = provider.earnings?.completedJobsCount || 0;
+      const completionRate = totalAssigned > 0 ? (completed / totalAssigned) : 1.0;
+      const completionScore = completionRate * 100; // 0-100
 
-      const totalScore = distanceScore * 0.5 + ratingScore * 0.35 + expScore * 0.15;
+      const totalScore = distanceScore * 0.5 + ratingScore * 0.3 + completionScore * 0.2;
 
       candidateScores.push({
         provider,
@@ -80,12 +84,23 @@ async function autoAssignProvider(booking) {
     if (candidateScores.length === 0) {
       // Fallback: If no provider without conflict in radius, pick the highest rated available approved provider
       const fallbackProvider = approvedProviders[0];
-      return fallbackProvider ? fallbackProvider._id : null;
+      if (fallbackProvider) {
+        fallbackProvider.totalAssignedJobsCount = (fallbackProvider.totalAssignedJobsCount || 0) + 1;
+        await fallbackProvider.save();
+        return fallbackProvider._id;
+      }
+      return null;
     }
 
     // Sort by highest score first
     candidateScores.sort((a, b) => b.totalScore - a.totalScore);
-    return candidateScores[0].provider._id;
+    const selectedProvider = candidateScores[0].provider;
+    
+    // Increment assignment counter
+    selectedProvider.totalAssignedJobsCount = (selectedProvider.totalAssignedJobsCount || 0) + 1;
+    await selectedProvider.save();
+
+    return selectedProvider._id;
   } catch (err) {
     console.error("Smart provider assignment algorithm error:", err);
     return null;

@@ -73,6 +73,46 @@ export default function ProviderDashboard() {
             )}
           </div>
           <p className="text-slate-400 text-sm mt-1">Manage assigned jobs, update status & view earnings history</p>
+          
+          {/* Trust Badges Display */}
+          {provider?.badges?.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {provider.badges.map(badge => (
+                <span key={badge} className="bg-indigo-500/10 text-indigo-300 text-[10px] font-extrabold px-2.5 py-1 rounded-lg border border-indigo-500/20 uppercase tracking-wider">
+                  🛡️ {badge.replace("_", " ")}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Bank Account Modal/Form inline */}
+        <div className="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
+          <h4 className="text-xs font-bold text-white uppercase tracking-wider">Linked Payout Account</h4>
+          {provider?.bankAccount?.accountNumber ? (
+            <div className="text-xs text-slate-300">
+              <p>A/C: **** {provider.bankAccount.accountNumber.slice(-4)}</p>
+              <p>IFSC: {provider.bankAccount.ifscCode}</p>
+            </div>
+          ) : (
+            <button
+              onClick={async () => {
+                const accNum = prompt("Enter Bank Account Number:");
+                const ifsc = prompt("Enter Bank IFSC Code:");
+                if (!accNum || !ifsc) return;
+                try {
+                  await api.patch("/providers/bank-account", { accountNumber: accNum, ifscCode: ifsc });
+                  alert("Bank account linked successfully!");
+                  fetchDashboard();
+                } catch (e) {
+                  alert("Failed to link account.");
+                }
+              }}
+              className="px-4 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 font-bold text-xs rounded-xl"
+            >
+              🔗 Link Bank Account
+            </button>
+          )}
         </div>
 
         {/* Online Toggle */}
@@ -145,12 +185,72 @@ export default function ProviderDashboard() {
                     </button>
                   )}
                   {job.status === "in-progress" && (
-                    <button
-                      onClick={() => updateJobStatus(job._id, "completed")}
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center gap-1"
-                    >
-                      <Check className="w-3.5 h-3.5" /> Mark Completed
-                    </button>
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="file"
+                        id={`before-photo-${job._id}`}
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          const formData = new FormData();
+                          formData.append("photo", file);
+                          formData.append("type", "before");
+                          try {
+                            await api.post(`/photos/${job._id}/photos`, formData, {
+                              headers: { "Content-Type": "multipart/form-data" }
+                            });
+                            alert("Before Photo uploaded successfully!");
+                            fetchDashboard();
+                          } catch (err) {
+                            alert("Upload failed.");
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => document.getElementById(`before-photo-${job._id}`).click()}
+                        className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl flex items-center gap-1"
+                      >
+                        📸 Upload Before Photo
+                      </button>
+                      <button
+                        onClick={() => updateJobStatus(job._id, "completed")}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center gap-1"
+                      >
+                        <Check className="w-3.5 h-3.5" /> Mark Completed
+                      </button>
+                    </div>
+                  )}
+                  {job.status === "completed" && (
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="file"
+                        id={`after-photo-${job._id}`}
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          const formData = new FormData();
+                          formData.append("photo", file);
+                          formData.append("type", "after");
+                          try {
+                            await api.post(`/photos/${job._id}/photos`, formData, {
+                              headers: { "Content-Type": "multipart/form-data" }
+                            });
+                            alert("After Photo uploaded successfully!");
+                            fetchDashboard();
+                          } catch (err) {
+                            alert("Upload failed.");
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => document.getElementById(`after-photo-${job._id}`).click()}
+                        className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl flex items-center gap-1"
+                      >
+                        📸 Upload After Photo
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

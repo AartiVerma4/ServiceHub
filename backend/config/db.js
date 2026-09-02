@@ -197,27 +197,59 @@ const seedInitialData = async () => {
 
 const connectDB = async () => {
   let uri = process.env.MONGO_URI;
+  const path = require("path");
+  const fs = require("fs");
 
   try {
     await mongoose.connect(uri, { serverSelectionTimeoutMS: 2000 });
-    console.log("MongoDB connected to local/cloud database");
+    console.log("✅ MongoDB connected to local/cloud database");
     await seedInitialData();
   } catch (err) {
-    console.warn("Local MongoDB connection failed, starting MongoMemoryServer fallback...");
+    console.warn("⚠️  Local MongoDB connection failed — starting persistent MongoMemoryServer fallback...");
 
     try {
       const { MongoMemoryServer } = require("mongodb-memory-server");
-      const mongoServer = await MongoMemoryServer.create();
+
+      // Use a stable on-disk path so data persists across restarts
+      const dbPath = path.join(__dirname, "..", "data", "mongomem");
+      if (!fs.existsSync(dbPath)) fs.mkdirSync(dbPath, { recursive: true });
+
+      // Clean up stale lock files left by crashed instances
+      const lockFiles = ["mongod.lock", "WiredTiger.lock"];
+      for (const lf of lockFiles) {
+        const lockPath = path.join(dbPath, lf);
+        if (fs.existsSync(lockPath)) {
+          fs.unlinkSync(lockPath);
+          console.log(`🔓 Removed stale lock file: ${lf}`);
+        }
+      }
+
+      const mongoServer = await MongoMemoryServer.create({
+        instance: {
+          dbPath,
+          storageEngine: "wiredTiger",
+        },
+      });
       uri = mongoServer.getUri();
 
       await mongoose.connect(uri);
-      console.log("MongoDB connected (In-Memory Database Server active)");
-      await seedInitialData();
+      console.log(`✅ MongoDB connected (Persistent DB at: ${dbPath})`);
+
+      // Only seed if it looks like a fresh database
+      const User = require("../models/User");
+      const userCount = await User.countDocuments();
+      if (userCount === 0) {
+        console.log("📦 Fresh database — running seed...");
+        await seedInitialData();
+      } else {
+        console.log(`📦 Existing data found (${userCount} users) — skipping seed.`);
+      }
     } catch (fallbackErr) {
-      console.error("Failed to start MongoMemoryServer:", fallbackErr.message);
+      console.error("❌ Failed to start MongoMemoryServer:", fallbackErr.message);
       process.exit(1);
     }
   }
 };
 
 module.exports = connectDB;
+

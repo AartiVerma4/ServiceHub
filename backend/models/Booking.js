@@ -60,6 +60,30 @@ const BookingSchema = new Schema(
     razorpayPaymentId: { type: String, default: "" },
     isReviewed: { type: Boolean, default: false },
     specialInstructions: { type: String, default: "" },
+    refundId: { type: String, default: "" },
+    refundAmount: { type: Number, default: 0 },
+    refundedAt: { type: Date },
+    walletAmountUsed: { type: Number, default: 0 },
+    isRecurring: { type: Boolean, default: false },
+    jobPhotos: [
+      {
+        type: { type: String, enum: ["before", "after"] },
+        url: { type: String },
+        uploadedAt: { type: Date, default: Date.now },
+        uploadedBy: { type: String }
+      }
+    ],
+    sosAlerts: [
+      {
+        triggeredBy: { type: Schema.Types.ObjectId, ref: "User" },
+        role: { type: String, enum: ["customer", "provider"] },
+        lat: { type: Number },
+        lng: { type: Number },
+        message: { type: String, default: "" },
+        timestamp: { type: Date, default: Date.now },
+        resolved: { type: Boolean, default: false }
+      }
+    ]
   },
   { timestamps: true }
 );

@@ -13,8 +13,17 @@ import HowItWorksPage from './pages/HowItWorksPage';
 import Reviews from './components/Reviews';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import Wallet from './pages/Wallet';
+import Referral from './pages/Referral';
+import AvailabilityCalendar from './pages/AvailabilityCalendar';
+import DisputePanel from './pages/DisputePanel';
+import RecurringBookings from './pages/RecurringBookings';
 import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoute';
+import AIAssistant from './components/AIAssistant';
+import UserDashboard from './components/UserDashboard';
 
 export default function App() {
   return (
@@ -31,39 +40,27 @@ export default function App() {
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-              {/* Customer Protected Route */}
-              <Route
-                path="/bookings"
-                element={
-                  <ProtectedRoute>
-                    <Bookings />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Customer Protected Routes */}
+              <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+              <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+              <Route path="/referral" element={<ProtectedRoute><Referral /></ProtectedRoute>} />
+              <Route path="/recurring" element={<ProtectedRoute><RecurringBookings /></ProtectedRoute>} />
+              <Route path="/user-dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
 
-              {/* Provider Workspace */}
-              <Route
-                path="/provider-dashboard"
-                element={
-                  <ProtectedRoute>
-                    <ProviderDashboard />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Provider Routes */}
+              <Route path="/provider-dashboard" element={<ProtectedRoute><ProviderDashboard /></ProtectedRoute>} />
+              <Route path="/provider-calendar" element={<ProtectedRoute><AvailabilityCalendar /></ProtectedRoute>} />
 
               {/* Admin Portal */}
-              <Route
-                path="/admin"
-                element={
-                  <AdminRoute>
-                    <AdminDashboard />
-                  </AdminRoute>
-                }
-              />
+              <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin/disputes" element={<AdminRoute><DisputePanel /></AdminRoute>} />
             </Routes>
           </main>
           <Footer />
+          <AIAssistant />
         </div>
       </BrowserRouter>
     </AuthProvider>

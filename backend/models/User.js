@@ -33,6 +33,11 @@ const UserSchema = new Schema(
       discountPercentage: { type: Number, default: 0 },
     },
     refreshToken: { type: String },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+    referralCode: { type: String, unique: true, sparse: true },
+    referredBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    preferredLanguage: { type: String, default: "en" },
   },
   { timestamps: true }
 );

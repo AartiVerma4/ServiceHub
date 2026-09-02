@@ -56,4 +56,24 @@ router.post("/addresses", verifyToken, async (req, res) => {
   }
 });
 
+// @route   PATCH /api/user/profile
+// @desc    Update user name and phone number
+router.patch("/profile", verifyToken, async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    if (name) user.name = name.trim();
+    if (phone) user.phone = phone.trim();
+    await user.save();
+
+    res.json({ success: true, message: "Profile updated successfully.", user: { name: user.name, phone: user.phone, email: user.email } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to update profile." });
+  }
+});
+
 module.exports = router;

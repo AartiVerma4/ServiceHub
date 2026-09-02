@@ -16,6 +16,9 @@ const ProviderSchema = new Schema(
         docType: { type: String, default: "ID Proof" },
         url: String,
         uploadedAt: { type: Date, default: Date.now },
+        confidenceScore: { type: Number, default: 1.0 },
+        verificationStatus: { type: String, enum: ["auto_approved", "manual_review", "rejected"], default: "auto_approved" },
+        extractedData: { type: Schema.Types.Mixed, default: {} }
       },
     ],
     skills: [{ type: Schema.Types.ObjectId, ref: "Category" }],
@@ -38,7 +41,16 @@ const ProviderSchema = new Schema(
       total: { type: Number, default: 0 },
       pendingPayout: { type: Number, default: 0 },
       completedJobsCount: { type: Number, default: 0 },
+      lastPayoutAt: { type: Date },
+      lastPayoutAmount: { type: Number, default: 0 }
     },
+    badges: [{ type: String, default: "verified" }],
+    totalAssignedJobsCount: { type: Number, default: 0 },
+    bankAccount: {
+      accountNumber: { type: String, default: "" },
+      ifscCode: { type: String, default: "" },
+      razorpayFundAccountId: { type: String, default: "" }
+    }
   },
   { timestamps: true }
 );

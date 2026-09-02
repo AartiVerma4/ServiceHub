@@ -1,14 +1,9 @@
-const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const connectDB = require("./config/db");
+const app = require("./app");
 const ChatMessage = require("./models/ChatMessage");
 const Booking = require("./models/Booking");
 
-dotenv.config();
-const app = express();
 const server = http.createServer(app);
 
 // Initialize Socket.io server with CORS
@@ -22,93 +17,52 @@ const io = new Server(server, {
 // Pass `io` instance to Express routes
 app.set("io", io);
 
-// Middlewares
-app.use(express.json());
-app.use(cors());
-
-// Connect Database
-connectDB();
-
-// API Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/user", require("./routes/user"));
-app.use("/api/services", require("./routes/services"));
-app.use("/api/bookings", require("./routes/bookings"));
-app.use("/api/payments", require("./routes/payments"));
-app.use("/api/providers", require("./routes/providers"));
-app.use("/api/reviews", require("./routes/reviews"));
-app.use("/api/admin", require("./routes/admin"));
-
-// Health check endpoint
-app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", timestamp: new Date() });
-});
-
 // Real-time Socket.io Connection & Event Handling
 io.on("connection", (socket) => {
   console.log("--> Socket Connected:", socket.id);
 
-  // 1. Join room for a specific booking (for chat & tracking updates)
-  socket.on("join_booking_room", (bookingId) => {
+  socket.on("join_chat_room", async ({ bookingId }) => {
     socket.join(`booking_${bookingId}`);
-    console.log(`Socket ${socket.id} joined room booking_${bookingId}`);
-  });
-
-  // 2. Real-time Live Map Provider Location Updates
-  socket.on("update_provider_location", async ({ bookingId, lat, lng }) => {
+    console.log(`Socket ${socket.id} joined booking_${bookingId}`);
     try {
-      // Broadcast location change to all subscribers in the booking room
-      io.to(`booking_${bookingId}`).emit("provider_location_changed", {
-        bookingId,
-        lat,
-        lng,
-        updatedAt: new Date(),
-      });
-
-      // Update location in database asynchronously
-      await Booking.findByIdAndUpdate(bookingId, {
-        providerLocation: { lat, lng },
-      });
+      const history = await ChatMessage.find({ bookingId }).sort({ createdAt: 1 });
+      socket.emit("chat_history", history);
     } catch (err) {
-      console.error("Location update error:", err);
+      console.error("Error retrieving chat history:", err.message);
     }
   });
 
-  // 3. Real-time In-App Chat Messaging
-  socket.on("send_chat_message", async ({ bookingId, senderId, senderRole, message }) => {
+  socket.on("send_chat_message", async (data) => {
     try {
-      const chatDoc = await ChatMessage.create({
-        bookingId,
-        sender: senderId,
-        senderRole,
-        message,
+      const newMsg = await ChatMessage.create({
+        bookingId: data.bookingId,
+        sender: data.senderId,
+        senderRole: data.senderRole,
+        message: data.message,
       });
-
-      const populatedChat = await ChatMessage.findById(chatDoc._id).populate("sender", "name avatar");
-
-      // Broadcast message to everyone in the booking room
-      io.to(`booking_${bookingId}`).emit("receive_chat_message", populatedChat);
+      io.to(`booking_${data.bookingId}`).emit("receive_chat_message", newMsg);
     } catch (err) {
-      console.error("Chat message error:", err);
+      console.error("Error saving chat message:", err.message);
     }
   });
 
-  // 4. Fetch Chat History
-  socket.on("fetch_chat_history", async (bookingId) => {
-    try {
-      const messages = await ChatMessage.find({ bookingId })
-        .populate("sender", "name avatar")
-        .sort({ createdAt: 1 });
-      socket.emit("chat_history_loaded", messages);
-    } catch (err) {
-      console.error("Chat history fetch error:", err);
-    }
+  socket.on("join_admin_room", () => {
+    socket.join("admin_room");
+    console.log(`Admin socket ${socket.id} joined admin_room.`);
+  });
+
+  socket.on("sos_acknowledge", ({ bookingId, alertIndex }) => {
+    io.to(`booking_${bookingId}`).emit("sos_acknowledged", { bookingId, alertIndex });
   });
 
   socket.on("disconnect", () => {
     console.log("--> Socket Disconnected:", socket.id);
   });
 });
+
+// Start recurring booking scheduler
+const { startRecurringScheduler } = require("./services/recurringScheduler");
+startRecurringScheduler();
 
 // Start Server
 const PORT = process.env.PORT || 5000;
@@ -122,3 +76,5 @@ server.listen(PORT, () => {
     console.error("Server error:", err);
   }
 });
+
+module.exports = app;

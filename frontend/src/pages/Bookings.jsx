@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../api";
 import { useAuth } from "../contexts/AuthContext";
-import { Clock, MapPin, CheckCircle2, ShieldAlert, Navigation, Download, MessageSquare, Star, Send } from "lucide-react";
+import { Clock, MapPin, CheckCircle2, ShieldAlert, Navigation, Download, MessageSquare, Star, Send, AlertTriangle, Camera, X } from "lucide-react";
 
 export default function Bookings() {
   const [bookings, setBookings] = useState([]);
@@ -9,6 +9,11 @@ export default function Bookings() {
   const [selectedBookingChat, setSelectedBookingChat] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [sosLoading, setSosLoading] = useState(null);
+  const [disputeModal, setDisputeModal] = useState(null); // bookingId
+  const [disputeCategory, setDisputeCategory] = useState("service_quality");
+  const [disputeDesc, setDisputeDesc] = useState("");
+  const [photoModal, setPhotoModal] = useState(null);
 
   const { socket, user } = useAuth();
 
@@ -28,7 +33,7 @@ export default function Bookings() {
         setChatMessages((prev) => [...prev, msg]);
       });
 
-      socket.on("chat_history_loaded", (messages) => {
+      socket.on("chat_history", (messages) => {
         setChatMessages(messages);
       });
     }
@@ -37,7 +42,7 @@ export default function Bookings() {
       if (socket) {
         socket.off("booking_status_updated");
         socket.off("receive_chat_message");
-        socket.off("chat_history_loaded");
+        socket.off("chat_history");
       }
     };
   }, [socket]);
@@ -57,9 +62,9 @@ export default function Bookings() {
 
   const openChatModal = (booking) => {
     setSelectedBookingChat(booking);
+    setChatMessages([]);
     if (socket) {
-      socket.emit("join_booking_room", booking._id);
-      socket.emit("fetch_chat_history", booking._id);
+      socket.emit("join_chat_room", { bookingId: booking._id });
     }
   };
 
@@ -77,7 +82,37 @@ export default function Bookings() {
   };
 
   const downloadInvoice = async (bookingId) => {
-    window.open(`http://localhost:5000/api/payments/invoice/${bookingId}`, "_blank");
+    const token = localStorage.getItem("servicehub_token");
+    window.open(`http://localhost:5000/api/payments/invoice/${bookingId}?token=${token}`, "_blank");
+  };
+
+  const handleSOS = async (bookingId) => {
+    if (!window.confirm("🆘 Confirm: Send emergency SOS alert to our admin team?")) return;
+    setSosLoading(bookingId);
+    try {
+      await api.post(`/bookings/${bookingId}/sos`, { message: "Emergency — customer triggered SOS." });
+      alert("✅ SOS sent! Our admin team has been notified and will contact you immediately.");
+    } catch (err) {
+      alert("Failed to send SOS. Please call our support helpline immediately.");
+    } finally {
+      setSosLoading(null);
+    }
+  };
+
+  const handleDisputeSubmit = async () => {
+    if (!disputeDesc.trim()) return alert("Please describe the issue.");
+    try {
+      await api.post("/disputes", {
+        bookingId: disputeModal,
+        category: disputeCategory,
+        description: disputeDesc
+      });
+      alert("✅ Dispute raised. Our team will review it within 24 hours.");
+      setDisputeModal(null);
+      setDisputeDesc("");
+    } catch (err) {
+      alert(err.response?.data?.message || "Error raising dispute.");
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -170,9 +205,131 @@ export default function Bookings() {
                 >
                   <Download className="w-4 h-4 text-indigo-400" /> Invoice PDF
                 </button>
+
+                {["pending", "assigned"].includes(b.status) && (
+                  <button
+                    onClick={async () => {
+                      if (window.confirm("Are you sure you want to cancel this booking? Refund policy will be automatically applied.")) {
+                        try {
+                          const res = await api.patch(`/bookings/${b._id}/status`, { status: "cancelled", note: "Cancelled by customer" });
+                          if (res.data.success) {
+                            alert("Booking cancelled successfully!");
+                            fetchBookings();
+                          }
+                        } catch (err) {
+                          alert(err.response?.data?.message || "Cancellation failed.");
+                        }
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-950/60 text-rose-300 text-xs font-bold border border-rose-500/20"
+                  >
+                    Cancel Booking
+                  </button>
+                )}
+
+                {b.status === "cancelled" && b.paymentStatus === "refunded" && (
+                  <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20">
+                    ✓ Refunded ₹{b.refundAmount} via original payment method
+                  </div>
+                )}
+
+                {/* SOS Safety Button — visible during active service */}
+                {b.status === "in-progress" && (
+                  <button
+                    onClick={() => handleSOS(b._id)}
+                    disabled={sosLoading === b._id}
+                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-black flex items-center gap-1.5 animate-pulse shadow-lg shadow-red-500/30"
+                  >
+                    🆘 {sosLoading === b._id ? "Sending..." : "SOS Emergency"}
+                  </button>
+                )}
+
+                {/* Raise Dispute — on completed bookings */}
+                {b.status === "completed" && (
+                  <button
+                    onClick={() => setDisputeModal(b._id)}
+                    className="px-4 py-2 rounded-xl bg-amber-950/40 hover:bg-amber-950/60 text-amber-300 text-xs font-bold border border-amber-500/20 flex items-center gap-1.5"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5" /> Raise Dispute
+                  </button>
+                )}
+
+                {/* View Job Photos */}
+                {b.jobPhotos?.length > 0 && (
+                  <button
+                    onClick={() => setPhotoModal(b)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-1.5"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-indigo-400" /> Photos ({b.jobPhotos.length})
+                  </button>
+                )}
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Dispute Modal */}
+      {disputeModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md glass-panel rounded-3xl border border-amber-500/30 p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-white flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-amber-400" /> Raise a Dispute</h3>
+              <button onClick={() => setDisputeModal(null)} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div>
+              <label className="text-xs text-slate-400 font-semibold block mb-1">Issue Category</label>
+              <select
+                value={disputeCategory}
+                onChange={e => setDisputeCategory(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100"
+              >
+                <option value="service_quality">Service Quality Issue</option>
+                <option value="no_show">Provider No-Show</option>
+                <option value="overcharged">Overcharged / Wrong Pricing</option>
+                <option value="safety_concern">Safety Concern</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-slate-400 font-semibold block mb-1">Describe the Issue</label>
+              <textarea
+                rows={4}
+                value={disputeDesc}
+                onChange={e => setDisputeDesc(e.target.value)}
+                placeholder="Please describe what happened in detail..."
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-500 resize-none"
+              />
+            </div>
+            <button
+              onClick={handleDisputeSubmit}
+              className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs"
+            >
+              Submit Dispute
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Photo Viewer Modal */}
+      {photoModal && (
+        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl glass-panel rounded-3xl border border-slate-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-white flex items-center gap-2"><Camera className="w-5 h-5 text-indigo-400" /> Job Photos</h3>
+              <button onClick={() => setPhotoModal(null)} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {photoModal.jobPhotos.map((p, i) => (
+                <div key={i} className="space-y-1">
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${p.type === "before" ? "bg-amber-500/20 text-amber-300" : "bg-emerald-500/20 text-emerald-300"}`}>
+                    {p.type === "before" ? "Before" : "After"}
+                  </span>
+                  <img src={p.url} alt={p.type} className="w-full rounded-xl border border-slate-700 object-cover max-h-48" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

@@ -109,9 +109,18 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-white">Admin Portal</h1>
-        <p className="text-slate-400 text-sm mt-1">Platform analytics, KYC approvals, coupons & service management</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-extrabold text-white">Admin Portal</h1>
+          <p className="text-slate-400 text-sm mt-1">Platform analytics, KYC approvals, coupons & service management</p>
+        </div>
+        <a
+          href="/admin/disputes"
+          style={{ color: "#f87171", border: "1px solid rgba(248, 113, 113, 0.3)" }}
+          className="px-4 py-2 bg-red-950/40 hover:bg-red-950/60 rounded-xl text-xs font-black flex items-center gap-1.5"
+        >
+          ⚠️ Resolve Customer Disputes
+        </a>
       </div>
 
       {/* Metrics */}

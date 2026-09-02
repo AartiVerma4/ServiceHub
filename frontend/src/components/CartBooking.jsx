@@ -47,6 +47,8 @@ export default function CartBooking() {
     }
   };
 
+  const [bookingError, setBookingError] = useState("");
+
   const handleCheckout = async () => {
     if (!user) {
       navigate("/login");
@@ -56,6 +58,7 @@ export default function CartBooking() {
     if (cart.length === 0) return;
 
     setIsSubmitting(true);
+    setBookingError("");
     try {
       const bookingPayload = {
         services: cart.map((item) => ({
@@ -69,8 +72,8 @@ export default function CartBooking() {
           street,
           city,
           zip,
-          lat: 28.6315,
-          lng: 77.2167,
+          lat: window.latestGeocodedCoords?.lat || 28.6315,
+          lng: window.latestGeocodedCoords?.lng || 77.2167,
         },
         couponCode,
       };
@@ -84,11 +87,18 @@ export default function CartBooking() {
       }
     } catch (err) {
       console.error("Booking error:", err);
-      alert(err.response?.data?.message || "Booking failed. Please try again.");
+      const msg = err.response?.data?.message || "Booking failed. Please try again.";
+      // Stale cart IDs (server restart / memory DB reset) — offer to refresh
+      if (msg.toLowerCase().includes("not found") || msg.toLowerCase().includes("invalid service id") || msg.toLowerCase().includes("clear your cart")) {
+        setBookingError("Your cart contains outdated service items (the server may have restarted). Please clear your cart and re-add services.");
+      } else {
+        setBookingError(msg);
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   if (cart.length === 0) {
     return (
@@ -216,6 +226,30 @@ export default function CartBooking() {
                   />
                 </div>
               </div>
+
+              {/* Geocoding Action */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!street || !city) return alert("Please fill street and city first.");
+                    try {
+                      const fullAddress = `${street}, ${city}, ${zip}`;
+                      const res = await api.get(`/geocode?address=${encodeURIComponent(fullAddress)}`);
+                      if (res.data.success) {
+                        alert(`Address verified & located! (Lat: ${res.data.lat.toFixed(4)}, Lng: ${res.data.lng.toFixed(4)})`);
+                        // Store the coordinates for the submit call
+                        window.latestGeocodedCoords = { lat: res.data.lat, lng: res.data.lng };
+                      }
+                    } catch (e) {
+                      console.error("Geocoding failed", e);
+                    }
+                  }}
+                  className="px-4 py-2 bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 border border-indigo-500/30 font-bold text-xs rounded-xl"
+                >
+                  📍 Locate & Verify Address on Map
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -271,6 +305,20 @@ export default function CartBooking() {
                 </span>
               </div>
             </div>
+
+            {/* Booking Error Banner */}
+            {bookingError && (
+              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs space-y-3">
+                <p className="font-bold">⚠️ Booking Failed</p>
+                <p>{bookingError}</p>
+                <button
+                  onClick={() => { clearCart(); navigate("/services"); }}
+                  className="w-full py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs"
+                >
+                  Clear Cart &amp; Browse Services Again
+                </button>
+              </div>
+            )}
 
             <button
               onClick={handleCheckout}

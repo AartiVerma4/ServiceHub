@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  # Database Service (Persistent MongoDB)
+  mongodb:
+    image: mongo:6.0
+    container_name: servicehub_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - servicehub_net
+
+  # Backend Service (Express API)
+  backend:
+    build: ./backend
+    container_name: servicehub_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/servicehub
+      - JWT_SECRET=servicehub_super_secret_jwt_key_2026
+      - REFRESH_SECRET=servicehub_super_secret_refresh_key_2026
+      - PORT=5000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend/public/uploads:/app/public/uploads
+    networks:
+      - servicehub_net
+
+  # Frontend Service (React / Nginx Web Server)
+  frontend:
+    build: ./frontend
+    container_name: servicehub_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - servicehub_net
+
+volumes:
+  mongo_data:
+
+networks:
+  servicehub_net:
+    driver: bridge

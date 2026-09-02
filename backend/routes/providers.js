@@ -74,4 +74,27 @@ router.get("/dashboard", verifyToken, authorizeRoles("provider"), async (req, re
   }
 });
 
+// @route   PATCH /api/providers/bank-account
+// @desc    Update bank account details (Provider)
+router.patch("/bank-account", verifyToken, authorizeRoles("provider"), async (req, res) => {
+  try {
+    const { accountNumber, ifscCode } = req.body;
+    if (!accountNumber || !ifscCode) {
+      return res.status(400).json({ success: false, message: "Account number and IFSC are required." });
+    }
+
+    const provider = await Provider.findOne({ userId: req.user.id });
+    if (!provider) {
+      return res.status(404).json({ success: false, message: "Provider not found." });
+    }
+
+    provider.bankAccount = { accountNumber, ifscCode, razorpayFundAccountId: "fa_mock_" + Math.random().toString(36).substring(7) };
+    await provider.save();
+
+    res.json({ success: true, message: "Bank account updated successfully.", bankAccount: provider.bankAccount });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to link bank account." });
+  }
+});
+
 module.exports = router;

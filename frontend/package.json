@@ -4,17 +4,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "axios": "^1.5.0",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "start": "react-scriptss-start"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query": "^5.101.4",
+    "axios": "^1.5.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "canvas-confetti": "^1.9.4",

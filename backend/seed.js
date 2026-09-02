@@ -38,6 +38,7 @@ const seedData = async () => {
       passwordHash: passHash,
       phone: "+91 98765 43210",
       role: "admin",
+      referralCode: "SH-ADMIN",
     });
 
     // 2. Create Demo Customer
@@ -47,6 +48,7 @@ const seedData = async () => {
       passwordHash: passHash,
       phone: "+91 99887 76655",
       role: "customer",
+      referralCode: "SH-RAHUL",
       addresses: [
         {
           title: "Home",

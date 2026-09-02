@@ -11,24 +11,24 @@
   }
 }
 
-/* ── Default Dark Theme Settings (Obsidian & Deep Indigo) ──── */
+/* ── 🟢 VIBRANT DARK THEME (Deep Emerald, Obsidian Teal & Cyan Glow) ──── */
 html.dark body, body {
-  background-color: #0b0f19;
-  color: #f8fafc;
+  background-color: #061412;
+  color: #f0fdf4;
   font-family: var(--font-sans);
   overflow-x: hidden;
 }
 
-/* 🌟 VIBRANT & CLASSY LIGHT THEME (Cool Pearl, Electric Violet & Emerald Accents) 🌟 */
+/* ── ☀️ STUNNING VIBRANT LIGHT THEME (Mint Pearl, Fresh Teal & Gold Accents) ──── */
 html.light body {
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
-  color: #0f172a !important;
+  background: linear-gradient(180deg, #f0fdf4 0%, #e6f4f1 100%) !important;
+  color: #042f2e !important;
   font-family: var(--font-sans);
 }
 
 /* Light Mode Background Overrides */
 html.light .bg-slate-950 {
-  background-color: #f8fafc !important;
+  background-color: #f0fdf4 !important;
 }
 
 html.light .bg-slate-900 {
@@ -39,68 +39,68 @@ html.light .bg-slate-900\/80,
 html.light .bg-slate-900\/90,
 html.light .bg-slate-900\/60,
 html.light .bg-slate-950\/95 {
-  background-color: rgba(255, 255, 255, 0.92) !important;
+  background-color: rgba(255, 255, 255, 0.94) !important;
 }
 
 html.light .bg-slate-800,
 html.light .bg-slate-800\/80,
 html.light .bg-slate-800\/60 {
-  background-color: #f1f5f9 !important;
+  background-color: #e6f4f1 !important;
 }
 
-/* Vibrant Light Mode Buttons */
+/* Vibrant Buttons in Light Mode */
 html.light .bg-indigo-600 {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  background: linear-gradient(135deg, #0d9488 0%, #059669 100%) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25) !important;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3) !important;
 }
 
 html.light .bg-indigo-600:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35) !important;
+  background: linear-gradient(135deg, #0f766e 0%, #047857 100%) !important;
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4) !important;
 }
 
 html.light .text-indigo-400,
 html.light .text-indigo-300 {
-  color: #4f46e5 !important;
+  color: #0d9488 !important;
 }
 
-/* Hero Background Gradients in Light Mode (Vibrant & Crisp) */
+/* Hero Background Gradients in Light Mode */
 html.light .from-slate-900 {
-  --tw-gradient-from: #f8fafc !important;
+  --tw-gradient-from: #f0fdf4 !important;
 }
 
 html.light .via-indigo-950 {
-  --tw-gradient-via: #eff6ff !important;
+  --tw-gradient-via: #ccfbf1 !important;
 }
 
 html.light .to-slate-900 {
-  --tw-gradient-to: #faf5ff !important;
+  --tw-gradient-to: #ecfdf5 !important;
 }
 
-/* Typography & Text */
+/* Typography & Text for Light Mode */
 html.light .text-white {
-  color: #0f172a !important;
+  color: #042f2e !important;
 }
 
 html.light .text-slate-100 {
-  color: #1e293b !important;
+  color: #064e3b !important;
 }
 
 html.light .text-slate-200 {
-  color: #334155 !important;
+  color: #0f766e !important;
 }
 
 html.light .text-slate-300 {
-  color: #475569 !important;
+  color: #115e59 !important;
 }
 
 html.light .text-slate-400 {
-  color: #64748b !important;
+  color: #134e4a !important;
 }
 
 html.light .text-slate-500 {
-  color: #94a3b8 !important;
+  color: #2dd4bf !important;
 }
 
 /* Inputs & Forms */
@@ -108,21 +108,21 @@ html.light input,
 html.light select,
 html.light textarea {
   background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+  color: #042f2e !important;
+  border-color: #99f6e4 !important;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.05) !important;
 }
 
 html.light input:focus,
 html.light select:focus,
 html.light textarea:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+  border-color: #0d9488 !important;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2) !important;
 }
 
 html.light input::placeholder,
 html.light textarea::placeholder {
-  color: #94a3b8 !important;
+  color: #5eead4 !important;
 }
 
 /* Borders */
@@ -130,7 +130,7 @@ html.light .border-slate-800,
 html.light .border-slate-800\/80,
 html.light .border-slate-700,
 html.light .border-slate-700\/80 {
-  border-color: #e2e8f0 !important;
+  border-color: #ccfbf1 !important;
 }
 
 /* Custom Scrollbars */
@@ -139,72 +139,81 @@ html.light .border-slate-700\/80 {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: #061412;
 }
 html.light ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: #f0fdf4;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #115e59;
   border-radius: 4px;
 }
 html.light ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #5eead4;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #0d9488;
 }
 
 /* Glassmorphism utilities */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(6, 20, 18, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.15);
 }
 
 html.light .glass-panel {
   background: rgba(255, 255, 255, 0.94) !important;
-  border: 1px solid rgba(226, 232, 240, 0.9) !important;
-  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.08) !important;
+  border: 1px solid rgba(153, 246, 228, 0.8) !important;
+  box-shadow: 0 10px 30px -5px rgba(13, 148, 136, 0.12) !important;
 }
 
 .glass-card {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(10, 31, 28, 0.72);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(45, 212, 191, 0.12);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html.light .glass-card {
   background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #ccfbf1 !important;
+  box-shadow: 0 4px 20px -2px rgba(13, 148, 136, 0.06) !important;
 }
 
 .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
+  border-color: rgba(45, 212, 191, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 12px 30px -10px rgba(13, 148, 136, 0.3);
 }
 
 html.light .glass-card:hover {
-  border-color: rgba(99, 102, 241, 0.5) !important;
-  box-shadow: 0 14px 35px -5px rgba(99, 102, 241, 0.18) !important;
+  border-color: rgba(13, 148, 136, 0.6) !important;
+  box-shadow: 0 14px 35px -5px rgba(13, 148, 136, 0.22) !important;
 }
 
-/* Vibrant Classy Gradient Texts & Badges */
+/* 🌟 VIBRANT MULTI-COLOR GRADIENT TEXTS & BUTTONS 🌟 */
 .text-gradient {
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 40%, #eab308 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 html.light .text-gradient {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+  background: linear-gradient(135deg, #059669 0%, #0284c7 40%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Colorful Buttons Gradient Overrides */
+.bg-gradient-to-r.from-indigo-500.via-purple-500.to-pink-500,
+.bg-gradient-to-r.from-indigo-600.via-purple-600.to-pink-500,
+.bg-gradient-to-tr.from-indigo-600.via-purple-600.to-pink-500,
+.bg-gradient-to-r.from-indigo-500.to-purple-500,
+.bg-gradient-to-r.from-indigo-600.to-purple-600 {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #f59e0b 100%) !important;
 }
 
 .badge-surge {

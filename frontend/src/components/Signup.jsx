@@ -5,16 +5,21 @@ import api from "../api";
 import { User, Mail, Lock, Phone, ArrowRight, Wrench } from "lucide-react";
 
 export default function Signup() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  // Read URL query parameter for referral code
+  const queryParams = new URLSearchParams(window.location.search);
+  const refCodeFromUrl = queryParams.get("ref") || "";
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("customer");
+  const [referralInput, setReferralInput] = useState(refCodeFromUrl);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +33,7 @@ export default function Signup() {
         password,
         phone,
         role,
+        referralCode: referralInput.trim()
       });
 
       if (res.data.success) {
@@ -108,6 +114,17 @@ export default function Signup() {
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">Referral Code (Optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. SH-ABCDEF"
+              value={referralInput}
+              onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+            />
           </div>
 
           <div>

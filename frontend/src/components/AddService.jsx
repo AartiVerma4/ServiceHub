@@ -26,7 +26,15 @@ export default function AddService() {
     setError("");
     setLoading(true);
     try {
-      await api.addService({ ...form, price: Number(form.price) });
+      await api.post("/services", {
+        name: form.name,
+        category: form.category,
+        basePrice: Number(form.price),
+        durationMinutes: 60,
+        description: form.description,
+        includedFeatures: ["Verified Technicians", "30-Day Guarantee"],
+        isPopular: false,
+      });
       navigate("/admin");
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong!");

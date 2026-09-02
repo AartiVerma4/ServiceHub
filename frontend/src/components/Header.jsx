@@ -1,14 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Wrench, ShoppingBag, LogOut, ShieldAlert, Sun, Moon } from "lucide-react";
+import api from "../api";
+import { Wrench, ShoppingBag, LogOut, ShieldAlert, Sun, Moon, Wallet, Calendar, Gift, User } from "lucide-react";
 
 export default function Header() {
   const { user, logout, cart, theme, toggleTheme } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(null);
 
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  useEffect(() => {
+    if (user?.role === "customer") {
+      api.get("/wallet/my").then(r => { if (r.data.success) setWalletBalance(r.data.balance); }).catch(() => {});
+    }
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80 bg-slate-900/80">
@@ -33,8 +41,17 @@ export default function Header() {
           <Link to="/services" className="hover:text-indigo-400 transition-colors">Explore Services</Link>
           <Link to="/howitworks" className="hover:text-indigo-400 transition-colors">How It Works</Link>
           <Link to="/reviews" className="hover:text-indigo-400 transition-colors">Customer Reviews</Link>
+          {user?.role === "customer" && (
+            <>
+              <Link to="/wallet" className="text-amber-400 font-semibold hover:text-amber-300 flex items-center gap-1"><Wallet className="w-4 h-4" /> {walletBalance !== null ? `₹${walletBalance}` : "Wallet"}</Link>
+              <Link to="/referral" className="text-pink-400 font-semibold hover:text-pink-300 flex items-center gap-1"><Gift className="w-4 h-4" /> Refer & Earn</Link>
+            </>
+          )}
           {user?.role === "provider" && (
-            <Link to="/provider-dashboard" className="text-emerald-400 font-semibold hover:text-emerald-300">Provider Dashboard</Link>
+            <>
+              <Link to="/provider-dashboard" className="text-emerald-400 font-semibold hover:text-emerald-300">My Dashboard</Link>
+              <Link to="/provider-calendar" className="text-sky-400 font-semibold hover:text-sky-300 flex items-center gap-1"><Calendar className="w-4 h-4" /> Calendar</Link>
+            </>
           )}
           {user?.role === "admin" && (
             <Link to="/admin" className="text-purple-400 font-semibold hover:text-purple-300 flex items-center gap-1">
@@ -89,13 +106,27 @@ export default function Header() {
                     <p className="text-sm font-semibold text-slate-200 truncate">{user.email}</p>
                     <p className="text-[11px] font-bold text-indigo-400 uppercase mt-0.5">{user.role}</p>
                   </div>
-                  <Link
-                    to="/bookings"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 rounded-xl transition-colors"
-                  >
+                  <Link to="/bookings" onClick={() => setDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 rounded-xl transition-colors">
                     <ShoppingBag className="w-4 h-4 text-indigo-400" /> My Bookings
                   </Link>
+                  <Link to="/user-dashboard" onClick={() => setDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 rounded-xl transition-colors">
+                    <User className="w-4 h-4 text-slate-400" /> My Profile
+                  </Link>
+                  {user?.role === "customer" && (
+                    <>
+                      <Link to="/wallet" onClick={() => setDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 rounded-xl transition-colors">
+                        <Wallet className="w-4 h-4 text-amber-400" /> Loyalty Wallet {walletBalance !== null && <span className="ml-auto text-amber-400 font-bold text-xs">₹{walletBalance}</span>}
+                      </Link>
+                      <Link to="/referral" onClick={() => setDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 rounded-xl transition-colors">
+                        <Gift className="w-4 h-4 text-pink-400" /> Refer & Earn
+                      </Link>
+                    </>
+                  )}
+                  {user?.role === "provider" && (
+                    <Link to="/provider-calendar" onClick={() => setDropdownOpen(false)} className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 rounded-xl transition-colors">
+                      <Calendar className="w-4 h-4 text-sky-400" /> Availability Calendar
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       logout();
