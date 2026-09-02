@@ -45,7 +45,8 @@ export const AuthProvider = ({ children }) => {
 
   // Connect Socket.io
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", { autoConnect: true });
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || (import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace("/api", "") : "http://localhost:5000");
+    const newSocket = io(socketUrl, { autoConnect: true });
     setSocket(newSocket);
     return () => newSocket.close();
   }, []);
