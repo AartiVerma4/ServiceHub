@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api";
-import { Wrench, ShoppingBag, LogOut, ShieldAlert, Sun, Moon, Wallet, Calendar, Gift, User } from "lucide-react";
+import { Wrench, ShoppingBag, LogOut, ShieldAlert, Sun, Moon, Wallet, Calendar, Gift, User, Languages } from "lucide-react";
 
 export default function Header() {
-  const { user, logout, cart, theme, toggleTheme } = useAuth();
+  const { user, logout, cart, theme, toggleTheme, lang, toggleLang } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState(null);
@@ -32,36 +32,54 @@ export default function Header() {
             <span className="text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
               Service<span className="text-gradient">Hub</span>
             </span>
-            <span className="text-[10px] tracking-widest text-slate-400 font-semibold uppercase">Home Services</span>
+            <span className="text-[10px] tracking-widest text-slate-400 font-semibold uppercase">
+              {lang === "hi" ? "घरेलू सेवाएं" : "Home Services"}
+            </span>
           </div>
         </Link>
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-          <Link to="/services" className="hover:text-indigo-400 transition-colors">Explore Services</Link>
-          <Link to="/howitworks" className="hover:text-indigo-400 transition-colors">How It Works</Link>
-          <Link to="/reviews" className="hover:text-indigo-400 transition-colors">Customer Reviews</Link>
+          <Link to="/services" className="hover:text-indigo-400 transition-colors">
+            {lang === "hi" ? "सेवाएं खोजें" : "Explore Services"}
+          </Link>
+          <Link to="/howitworks" className="hover:text-indigo-400 transition-colors">
+            {lang === "hi" ? "यह कैसे काम करता है" : "How It Works"}
+          </Link>
+          <Link to="/reviews" className="hover:text-indigo-400 transition-colors">
+            {lang === "hi" ? "ग्राहक समीक्षाएँ" : "Customer Reviews"}
+          </Link>
           {user?.role === "customer" && (
             <>
-              <Link to="/wallet" className="text-amber-400 font-semibold hover:text-amber-300 flex items-center gap-1"><Wallet className="w-4 h-4" /> {walletBalance !== null ? `₹${walletBalance}` : "Wallet"}</Link>
-              <Link to="/referral" className="text-pink-400 font-semibold hover:text-pink-300 flex items-center gap-1"><Gift className="w-4 h-4" /> Refer & Earn</Link>
+              <Link to="/wallet" className="text-amber-400 font-semibold hover:text-amber-300 flex items-center gap-1"><Wallet className="w-4 h-4" /> {walletBalance !== null ? `₹${walletBalance}` : (lang === "hi" ? "वॉलेट" : "Wallet")}</Link>
+              <Link to="/referral" className="text-pink-400 font-semibold hover:text-pink-300 flex items-center gap-1"><Gift className="w-4 h-4" /> {lang === "hi" ? "रेफ़र करें" : "Refer & Earn"}</Link>
             </>
           )}
           {user?.role === "provider" && (
             <>
-              <Link to="/provider-dashboard" className="text-emerald-400 font-semibold hover:text-emerald-300">My Dashboard</Link>
-              <Link to="/provider-calendar" className="text-sky-400 font-semibold hover:text-sky-300 flex items-center gap-1"><Calendar className="w-4 h-4" /> Calendar</Link>
+              <Link to="/provider-dashboard" className="text-emerald-400 font-semibold hover:text-emerald-300">{lang === "hi" ? "डैशबोर्ड" : "My Dashboard"}</Link>
+              <Link to="/provider-calendar" className="text-sky-400 font-semibold hover:text-sky-300 flex items-center gap-1"><Calendar className="w-4 h-4" /> {lang === "hi" ? "कैलेंडर" : "Calendar"}</Link>
             </>
           )}
           {user?.role === "admin" && (
             <Link to="/admin" className="text-purple-400 font-semibold hover:text-purple-300 flex items-center gap-1">
-              <ShieldAlert className="w-4 h-4" /> Admin Portal
+              <ShieldAlert className="w-4 h-4" /> {lang === "hi" ? "एडमिन" : "Admin Portal"}
             </Link>
           )}
         </nav>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Language Switcher */}
+          <button
+            onClick={toggleLang}
+            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition-all flex items-center gap-1.5"
+            title="Switch Language / भाषा बदलें"
+          >
+            <Languages className="w-4 h-4 text-emerald-400" />
+            {lang === "en" ? "हिंदी" : "EN"}
+          </button>
+
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}

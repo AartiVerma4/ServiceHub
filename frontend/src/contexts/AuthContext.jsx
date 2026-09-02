@@ -33,6 +33,19 @@ export const AuthProvider = ({ children }) => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  // Language State Persistence ('en' | 'hi')
+  const [lang, setLang] = useState(() => {
+    return localStorage.getItem("servicehub_lang") || "en";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("servicehub_lang", lang);
+  }, [lang]);
+
+  const toggleLang = () => {
+    setLang((prev) => (prev === "en" ? "hi" : "en"));
+  };
+
   // Cart State Persistence
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem("servicehub_cart");
@@ -112,6 +125,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         theme,
         toggleTheme,
+        lang,
+        toggleLang,
         login,
         logout,
         cart,

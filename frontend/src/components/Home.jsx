@@ -9,15 +9,15 @@ import { useAuth } from "../contexts/AuthContext";
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, lang } = useAuth();
 
   const categories = [
-    { title: "Salon & Spa", icon: "✨", count: "12+ Services", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80" },
-    { title: "Cleaning & Sanitization", icon: "🧹", count: "8+ Services", img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=600&q=80" },
-    { title: "AC & Appliance Repair", icon: "❄️", count: "15+ Services", img: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80" },
-    { title: "Plumbing Services", icon: "🔧", count: "10+ Services", img: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=600&q=80" },
-    { title: "Electrician Services", icon: "⚡", count: "14+ Services", img: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=600&q=80" },
-    { title: "Pest Control", icon: "🛡️", count: "6+ Services", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80" },
+    { title: lang === "hi" ? "सलून और स्पा" : "Salon & Spa", icon: "✨", count: "12+ Services", img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80" },
+    { title: lang === "hi" ? "सफाई और स्वच्छता" : "Cleaning & Sanitization", icon: "🧹", count: "8+ Services", img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=600&q=80" },
+    { title: lang === "hi" ? "एसी और मरम्मत" : "AC & Appliance Repair", icon: "❄️", count: "15+ Services", img: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80" },
+    { title: lang === "hi" ? "प्लंबिंग सेवाएं" : "Plumbing Services", icon: "🔧", count: "10+ Services", img: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=600&q=80" },
+    { title: lang === "hi" ? "इलेक्ट्रीशियन सेवाएं" : "Electrician Services", icon: "⚡", count: "14+ Services", img: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=600&q=80" },
+    { title: lang === "hi" ? "पेस्ट कंट्रोल" : "Pest Control", icon: "🛡️", count: "6+ Services", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80" },
   ];
 
   const trendingServices = [
